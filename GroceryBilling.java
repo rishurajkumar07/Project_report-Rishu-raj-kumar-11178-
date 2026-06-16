@@ -22,97 +22,79 @@ class Item {
     public int getQuantity() {
         return quantity;
     }
-
-    public double getItemTotal() {
-        return price * quantity;
-    }
 }
 
+// Bill Class
 class Bill {
-    private ArrayList<Item> items;
-    private static final double GST_RATE = 0.05;
+    private Item[] items;
+    private double total;
+    private double tax;
+    private double grandTotal;
 
-    public Bill() {
-        items = new ArrayList<>();
+    public Bill(Item[] items) {
+        this.items = items;
+        calculateTotal();
     }
 
-    public void addItem(Item item) {
-        items.add(item);
-    }
-
-    public double calculateSubtotal() {
-        double subtotal = 0;
+    private void calculateTotal() {
+        total = 0;
 
         for (Item item : items) {
-            subtotal += item.getItemTotal();
+            total += item.getPrice() * item.getQuantity();
         }
 
-        return subtotal;
+        tax = total * 0.05; // 5% GST
+        grandTotal = total + tax;
     }
 
-    public double calculateTax() {
-        return calculateSubtotal() * GST_RATE;
-    }
-
-    public double calculateGrandTotal() {
-        return calculateSubtotal() + calculateTax();
-    }
-
-    public void printReceipt() {
-        System.out.println("\n========== GROCERY BILL ==========");
-        System.out.printf("%-5s %-15s %-10s %-10s %-10s%n",
-                "No", "Item", "Price", "Qty", "Total");
-
-        int count = 1;
+    public void generateReceipt() {
+        System.out.println("\n------ Grocery Bill ------");
+        System.out.println("Item\tPrice\tQty\tTotal");
 
         for (Item item : items) {
-            System.out.printf("%-5d %-15s %-10.2f %-10d %-10.2f%n",
-                    count++,
-                    item.getName(),
-                    item.getPrice(),
-                    item.getQuantity(),
-                    item.getItemTotal());
+            double itemTotal = item.getPrice() * item.getQuantity();
+            System.out.println(item.getName() + "\t" +
+                    item.getPrice() + "\t" +
+                    item.getQuantity() + "\t" +
+                    itemTotal);
         }
 
-        double subtotal = calculateSubtotal();
-        double tax = calculateTax();
-        double grandTotal = calculateGrandTotal();
-
-        System.out.println("----------------------------------");
-        System.out.printf("Subtotal     : %.2f%n", subtotal);
-        System.out.printf("GST (5%%)     : %.2f%n", tax);
-        System.out.printf("Grand Total  : %.2f%n", grandTotal);
-        System.out.println("==================================");
+        System.out.println("--------------------------");
+        System.out.println("Total: " + total);
+        System.out.println("Tax (5%): " + tax);
+        System.out.println("Grand Total: " + grandTotal);
     }
 }
 
-public class GroceryBilling {
+// Main Class
+public class GroceryBilling2 {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-
-        Bill bill = new Bill();
 
         System.out.print("Enter number of items: ");
         int n = sc.nextInt();
         sc.nextLine();
 
-        for (int i = 1; i <= n; i++) {
-            System.out.println("\nItem " + i);
+        Item[] items = new Item[n];
 
-            System.out.print("Enter item name: ");
+        for (int i = 0; i < n; i++) {
+            System.out.println("\nEnter details of item " + (i + 1));
+
+            System.out.print("Item Name: ");
             String name = sc.nextLine();
 
-            System.out.print("Enter price: ");
+            System.out.print("Price: ");
             double price = sc.nextDouble();
 
-            System.out.print("Enter quantity: ");
+            System.out.print("Quantity: ");
             int quantity = sc.nextInt();
             sc.nextLine();
 
-            bill.addItem(new Item(name, price, quantity));
+            items[i] = new Item(name, price, quantity);
         }
 
-        bill.printReceipt();
+        Bill bill = new Bill(items);
+        bill.generateReceipt();
 
         sc.close();
     }
